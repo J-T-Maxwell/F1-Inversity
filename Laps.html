@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Laps Data</title>
+    <link rel="stylesheet" href="Laps.css">
+    <link rel="stylesheet" href="back-button.css">
+    <link rel="stylesheet" href="loading page.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <a href="F1 homepage.html" class="back-button">&#8592;</a>
+    <h1>F1 Laps Data</h1>
+    <h2>Select Session:</h2>
+    <p>You can change the data displayed by the graph by changing the session within the dropdown box.</p>
+    <label for="session-key">Select Session:</label>
+    <select id="session-key"></select>
+    <canvas id="all-laps-graph" width="800" height="300"></canvas>
+    <h2>Select Driver:</h2>
+    <p>This graph is for you to be able to see individual driver lap times from the selected session. In order for a graph to appear please select a driver from the dropdown box below.</p>
+    <label for="driver-select">Select Driver Lap Data:</label>
+    <select id="driver-select"></select>
+    <canvas id="selected-driver-graph" width="800" height="300"></canvas>
+    <table id="laps-table">
+        <thead>
+            <tr>
+                <th>Lap Number</th>
+                <th>Sector 1</th>
+                <th>Sector 2</th>
+                <th>Sector 3</th>
+                <th>Lap Duration</th>
+            </tr>
+        </thead>
+        <tbody id="laps-table-body">
+            <!-- Table rows will be added dynamically using JavaScript -->
+        </tbody>
+    </table>
+    <!-- Loading screen -->
+    <div id="loading">
+        <p>Loading Data, This May Take A Few Moments...</p>
+    </div>
+    <script src="Laps.js"></script>
+</body>
+</html>

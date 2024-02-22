@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="back-button.css">
+    <link rel="stylesheet" href="loading page.css">
+    <title>Interval Board</title>
+    <style>
+        body {
+            background-image: url('https://cdn-7.motorsport.com/images/amp/YEQgnG5Y/s6/lewis-hamilton-mercedes-f1-w14.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: #00fffb;
+            text-align: center; /* Center align the title */
+        }
+        table {
+            border-collapse: collapse;
+            margin: auto;
+            border: 2px solid #00fffb;
+            font-size: 13px;
+            /*background-color: rgba(0, 0, 0, 0.75);  Adjust the opacity as needed */
+        }
+
+        h1 {
+            border: 2px solid #00fffb; /* Border style */
+            padding: 10px; /* Padding inside the box */
+            display: inline-block; /* Display as inline block to fit the content */
+            background-color: black; /* Background color for the h1 */
+            margin: 20px; /* Add margin around the h1 */
+            padding: 10px; /* Padding inside the h1 */
+            display: inline-block; /* Display as inline block to fit the content */
+        }
+
+        th, td {
+            border: 1px solid #00fffb;
+            text-align: center;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #00fffb;
+            color: black;
+        }
+
+        tr:hover {
+            background-color: #00fffb4d; /* Change color on hover */
+        }
+
+    </style>
+    
+</head>
+
+<body>
+    <a href="F1 homepage.html" class="back-button">&#8592;</a>
+    <h1>Interval Board</h1>
+    <table>
+        <tbody id="intervalBoard">
+            <!-- Table rows will be dynamically added here -->
+        </tbody>
+    </table>
+    <div id="loading">
+        <p>Loading Data, This May Take A Few Moments...</p>
+    </div>
+    <script>
+        // Show loading screen
+        document.getElementById('loading').style.display = 'block';
+        // Function to fetch data and update the interval board
+        function fetchDataAndUpdateIntervalBoard() {
+            // Fetch sessions data
+            fetch('https://api.openf1.org/v1/sessions')
+                .then(response => response.json())
+                .then(sessions => {
+                    // Get the latest session
+                    const session = sessions[sessions.length - 1];
+
+                    // Fetch drivers data for the latest session
+                    fetch(`https://api.openf1.org/v1/drivers?session_key=${session.session_key}`)
+                        .then(response => response.json())
+                        .then(drivers => {
+                            // Fetch intervals data for the latest session
+                            fetch(`https://api.openf1.org/v1/intervals?session_key=${session.session_key}`)
+                                .then(response => response.json())
+                                .then(intervals => {
+                                    // Filter out drivers without intervals
+                                    drivers = drivers.filter(driver => intervals.find(interval => interval.driver_number === driver.driver_number));
+                                    
+                                    // Get the latest interval for each driver
+                                    drivers.forEach(driver => {
+                                        const driverIntervals = intervals.filter(interval => interval.driver_number === driver.driver_number);
+                                        if (driverIntervals.length > 0) {
+                                            driver.interval = driverIntervals.reduce((latest, current) => latest.date > current.date ? latest : current).interval;
+                                        } else {
+                                            driver.interval = Infinity; // If no interval data found
+                                        }
+                                    });
+
+                                    // Fetch positions data
+                                    fetch('https://api.openf1.org/v1/position')
+                                        .then(response => response.json())
+                                        .then(positions => {
+                                            // Associate each driver with their latest position
+                                            drivers.forEach(driver => {
+                                                const driverPositions = positions.filter(position => position.driver_number === driver.driver_number);
+                                                if (driverPositions.length > 0) {
+                                                    driver.position = driverPositions.reduce((latest, current) => latest.date > current.date ? latest : current).position;
+                                                } else {
+                                                    driver.position = Infinity; // If no position data found
+                                                }
+                                            });
+
+                                            // Sort drivers based on the latest position
+                                            drivers.sort((a, b) => {
+                                                if (a.position === b.position) return 0; // If both positions are equal, maintain the order
+                                                if (a.position === Infinity) return 1; // Put drivers with no position data at the bottom
+                                                if (b.position === Infinity) return -1; // Put drivers with no position data at the bottom
+                                                return a.position - b.position;
+                                            });
+
+                                            // Update the interval board with the sorted data
+                                            displayIntervalBoard(drivers);
+                                            // Hide loading screen
+                                            document.getElementById('loading').style.display = 'none';
+                                        });
+                                });
+                        });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Function to display the interval board with the latest data
+        function displayIntervalBoard(data) {
+            const intervalBoard = document.getElementById('intervalBoard');
+            intervalBoard.innerHTML = ''; // Clear previous content
+
+            // Create table headers
+            const headers = ['Position', 'Driver', 'Team', 'Interval', 'Gap To Leader'];
+            const headerRow = document.createElement('tr');
+            headers.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+            intervalBoard.appendChild(headerRow);
+
+            // Calculate gap to leader
+            let cumulativeInterval = 0;
+
+            // Create table rows with data
+            data.forEach((driver, index) => {
+                const row = document.createElement('tr');
+                const position = index + 1;
+                if (index > 0) { // Starting from the second row
+                    cumulativeInterval += data[index].interval; // Add previous driver's interval to cumulative interval
+                }
+                const rowData = [position, driver.name_acronym, '', driver.interval === null ? 'Leader' : driver.interval, cumulativeInterval || 'Leader'];
+                rowData.forEach((value, columnIndex) => {
+                    const td = document.createElement('td');
+                    td.textContent = value;
+                    if (columnIndex === 2) { // If it's the "Team" column
+                        td.style.backgroundColor = '#' + driver.team_colour; // Set background color to the team color
+                    } else {
+                        td.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+                    }
+                    row.appendChild(td);
+                });
+                intervalBoard.appendChild(row);
+            });
+        }
+
+        // Fetch data and update the interval board initially
+        fetchDataAndUpdateIntervalBoard();
+
+        // Set interval to fetch and update data every 20 seconds
+        setInterval(fetchDataAndUpdateIntervalBoard, 20000);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Data Graphs</title>
+    <link rel="stylesheet" href="back-button.css">
+    <link rel="stylesheet" href="loading page.css">
+    <!-- Include Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            background-color: #000;
+            color: #00fffb;
+        }
+        .sessionBox {
+            max-width: 150px;
+        }
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <a href="F1 homepage.html" class="back-button">&#8592;</a>
+    <h1 id="header">Car Data</h1>
+
+    <p>
+        In order for the graphs to generate you must choose a session and a driver.
+    </p>
+
+    <!-- Create dropdown menu for session selection -->
+    <label for="sessions">Choose a session:</label>
+    <select id="sessions" class="sessionBox">
+    <!-- Options will be populated dynamically -->
+    </select>
+
+    <!-- Create dropdown menu for driver selection -->
+    <label for="drivers">Choose a driver:</label>
+    <select id="drivers" class="sessionBox">
+    <!-- Options will be populated dynamically -->
+    </select>
+
+    <!-- Create placeholders for the graphs -->
+    <div id="rpmGraph"></div>
+    <div id="drsGraph"></div>
+    <div id="gearGraph"></div>
+    <div id="speedGraph"></div>
+    <div id="throttleGraph"></div>
+    <div id="brakeGraph"></div>
+
+    <!-- Loading screen -->
+    <div id="loading">
+        <p>Loading Data, This May Take A Few Moments...</p>
+    </div>
+
+    <script>
+        // Fetch driver data and populate dropdown menu
+        function fetchDrivers(sessionKey) {
+            // Show loading screen
+            document.getElementById('loading').style.display = 'block';
+
+            fetch(`https://api.openf1.org/v1/drivers?session_key=${sessionKey}`)
+                .then(response => response.json())
+                .then(jsonContent => {
+                    const driversDropdown = document.getElementById('drivers');
+                    driversDropdown.innerHTML = ''; // Clear existing options
+
+                    // Populate dropdown menu options
+                    jsonContent.forEach(driver => {
+                        const option = document.createElement('option');
+                        option.value = driver.driver_number;
+                        option.textContent = driver.full_name;
+                        driversDropdown.appendChild(option);
+                    });
+
+                    // Hide loading screen
+                    document.getElementById('loading').style.display = 'none';
+                })
+                .catch(error => console.error('Error fetching driver data:', error));
+        }
+
+        // Fetch session data and populate dropdown menu
+        fetch('https://api.openf1.org/v1/sessions')
+            .then(response => response.json())
+            .then(jsonContent => {
+                const sessionsDropdown = document.getElementById('sessions');
+
+                // Populate dropdown menu options
+                jsonContent.forEach(session => {
+                    const option = document.createElement('option');
+                    option.value = session.session_key;
+                    option.textContent = `${session.session_name} - ${session.location}`; // Append location to session name
+                    sessionsDropdown.appendChild(option);
+                });
+
+                // Add event listener to the sessions dropdown menu
+                sessionsDropdown.addEventListener('change', () => {
+                    const selectedSessionKey = sessionsDropdown.value;
+                    fetchDrivers(selectedSessionKey); // Fetch drivers for the selected session
+                });
+            })
+            .catch(error => console.error('Error fetching session data:', error));
+
+        // Event listener for the drivers dropdown menu
+        document.getElementById('drivers').addEventListener('change', fetchData);
+
+        // Function to fetch and update car data for the selected driver and session
+        function fetchData() {
+            const driverNumber = document.getElementById('drivers').value;
+            const sessionKey = document.getElementById('sessions').value;
+
+            // Show loading screen
+            document.getElementById('loading').style.display = 'block';
+
+            // Fetch car data for the selected driver and session
+            fetch(`https://api.openf1.org/v1/car_data?driver_number=${driverNumber}&session_key=${sessionKey}`)
+                .then(response => response.json())
+                .then(jsonContent => {
+                    // Extract data
+                    const dates = jsonContent.map(data => new Date(data.date));
+                    const rpm = jsonContent.map(data => data.rpm);
+                    const drs = jsonContent.map(data => data.drs);
+                    const gear = jsonContent.map(data => data.n_gear);
+                    const speed = jsonContent.map(data => data.speed);
+                    const throttle = jsonContent.map(data => data.throttle);
+                    const brake = jsonContent.map(data => data.brake);
+
+                    // Create plots
+                    createPlot('rpmGraph', dates, rpm, 'RPM', '#00fffb');
+                    createPlot('drsGraph', dates, drs, 'DRS', '#ff0000');
+                    createPlot('gearGraph', dates, gear, 'Gear Number', '#2bff00');
+                    createPlot('speedGraph', dates, speed, 'Speed (km/h)', '#f7ff00');
+                    createPlot('throttleGraph', dates, throttle, 'Throttle', '#ff00f7');
+                    createPlot('brakeGraph', dates, brake, 'Brake', '#0022ff');
+                    updateTitle(); // Update title when driver changes
+
+                    // Hide loading screen
+                    document.getElementById('loading').style.display = 'none';
+                })
+                .catch(error => console.error('Error fetching car data:', error));
+        }
+
+        // Function to create a plot
+        function createPlot(elementId, xData, yData, yLabel, lineColor) {
+            const trace = {
+                x: xData,
+                y: yData,
+                mode: 'lines',
+                type: 'scatter',
+                line: {
+                    color: lineColor
+                }
+            };
+
+            const layout = {
+                title: yLabel + ' Over Time',
+                xaxis: {
+                    title: 'Date/Time'
+                },
+                yaxis: {
+                    title: yLabel
+                },
+                plot_bgcolor: '#000',
+                paper_bgcolor: '#000',
+                font: {
+                    color: '#00fffb'
+                }
+            };
+
+            const config = {
+                responsive: true
+            };
+
+            Plotly.newPlot(elementId, [trace], layout, config);
+            updateTitle(); // Update title when session changes
+        }
+
+        // Function to update the title of the page
+        function updateTitle() {
+            const sessionName = document.getElementById('sessions').options[document.getElementById('sessions').selectedIndex].textContent;
+            const driverName = document.getElementById('drivers').options[document.getElementById('drivers').selectedIndex].textContent;
+            document.title = `${sessionName} - ${driverName} | Car Data Graphs`;
+            const header = document.getElementById('header');
+            header.textContent = `${sessionName} - ${driverName}`;
+        }
+    </script>
+</body>
+</html>
