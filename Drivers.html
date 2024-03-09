@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Information</title>
+    <link rel="stylesheet" href="global style.css">
+    <style>
+
+        .drivers-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            color: black;
+        }
+
+        .driver-info {
+            width: 200px;
+            padding: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .driver-info:hover {
+            transform: scale(1.05);
+        }
+
+        .driver-headshot {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .driver-details {
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="index.html">Home</a>
+        <a href="Car data.html">Car Data</a>
+        <a href="Drivers.html">Drivers</a>
+        <a href="Intervals.html">Intervals</a>
+        <a href="Laps.html">Laps</a>
+        <a href="sessions.html">Sessions</a>
+        <a href="driver comparison.html">Compare Drivers</a>
+        <a href="#" class="back-to-top">To Top Of Page</a>
+    </div>
+    <a href="index.html" class="back-button">&#8592;</a>
+    <h1>Current F1 Drivers</h1>
+    <div id="drivers-container" class="drivers-container"></div>
+    <script>
+        fetch('https://api.openf1.org/v1/drivers?session_key=9158')
+            .then(response => response.json())
+            .then(drivers => {
+                const driversContainer = document.getElementById('drivers-container');
+                drivers.forEach(driver => {
+                    const driverInfo = document.createElement('div');
+                    driverInfo.classList.add('driver-info');
+                    driverInfo.style.backgroundColor = `#${driver.team_colour}`; // Use team color from data
+                    const imageSrc = driver.headshot_url ? driver.headshot_url : 'https://i1.wp.com/cornellsun.com/wp-content/uploads/2020/06/1591119073-screen_shot_2020-06-02_at_10.30.13_am.png?fit=700%2C652&ssl=1'; // Default placeholder image if no URL available
+                    driverInfo.innerHTML = `
+                        <img src="${imageSrc}" alt="Driver Headshot" class="driver-headshot">
+                        <div class="driver-details">
+                            <h2>${driver.full_name}</h2>
+                            <p>Country: ${driver.country_code}</p>
+                            <p>Driver Number: ${driver.driver_number}</p>
+                            <p>Team: ${driver.team_name}</p>
+                            <!-- Add more data fields as needed -->
+                        </div>`;
+                    driversContainer.appendChild(driverInfo);
+                });
+            });
+    </script>
+</body>
+</html>

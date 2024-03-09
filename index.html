@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="global style.css">
+    <title>F1 Dashboard Homepage</title>
+    <style>
+        h1 {
+            font-size: 43px;
+            margin-top: 50px;
+            text-align: left;
+            margin-left: 10px;
+        }
+
+        h2 {
+            color: #00d2be;
+            text-decoration: underline;
+        }
+
+        .image {
+            max-width: 200px;
+            max-height: 200px;
+            margin-left: 20px;
+            /* Add some space between the image and title */
+        }
+
+        table {
+            width: 30%;
+            position: fixed;
+            right: 20px;
+            top: 50px;
+        }
+
+        th, td {
+            padding: 7px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="index.html">Home</a>
+        <a href="Car data.html">Car Data</a>
+        <a href="Drivers.html">Drivers</a>
+        <a href="Intervals.html">Intervals</a>
+        <a href="Laps.html">Laps</a>
+        <a href="sessions.html">Sessions</a>
+        <a href="driver comparison.html">Compare Drivers</a>
+        <a href="#" class="back-to-top">To Top Of Page</a>
+    </div>
+    <h1>Welcome to the Mercedes F1 strategy homepage</h1>
+    <table id="driverStandings">
+        <thead>
+            <tr>
+                <th>Position</th>
+                <th>Driver</th>
+                <th>Team Name</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody id="standingsBody"></tbody>
+    </table>
+
+    <div class="link-container">
+        <a class="link" href="Car data.html">
+            <div class="link-info">
+                <h2>Car Data</h2>
+                <p>Here is where you can see all the data to do with the performance of the cars at any session. This
+                    includes things like RPM, DRS and speed.</p>
+            </div>
+            <img class="image" src="https://cdn-5.motorsport.com/images/mgl/YMdyjMg2/s800/mercedes-w14-1.jpg"
+                alt="Car Data Image">
+        </a>
+
+        <a class="link" href="Drivers.html">
+            <div class="link-info">
+                <h2>Drivers</h2>
+                <p>Here is where you can see brief information about the current drivers in F1. At the moment there are
+                    20 main drivers.</p>
+            </div>
+            <img class="image"
+                src="https://e0.365dm.com/22/03/2048x1152/skysports-george-russell-lewis-hamilton_5706480.jpg?20220315133325"
+                alt="Lewis Hamilton and George Russell Image">
+        </a>
+
+        <a class="link" href="Intervals.html">
+            <div class="link-info">
+                <h2>Intervals</h2>
+                <p>Here is where you can see all the real time data of the gap between any car and the race leader.
+                    This interval board is not unlike the one seen when F1 races are on.</p>
+            </div>
+            <img class="image" src="https://qph.cf2.quoracdn.net/main-qimg-99b6c79c1ea1d9f83b3f48ba141a5a76-lq">
+        </a>
+
+        <a class="link" href="Laps.html">
+            <div class="link-info">
+                <h2>Laps</h2>
+                <p>Here is where you can see all the information about the laps that the drivers are putting in. You can
+                    select any session and driver from the year and see their lap times on graphs and in a table.</p>
+            </div>
+            <img class="image" src="https://www.lrs-formula.com/c/57-pdt_1920/barcelona-catalunya-circuit.jpg"
+                alt="Lewis Hamilton and George Russell Image">
+        </a>
+
+        <a class="link" href="sessions.html">
+            <div class="link-info">
+                <h2>Sessions</h2>
+                <p>Here is where you can see all of the sessions throughout the year, including practice sessions and
+                    sprint races.</p>
+            </div>
+            <img class="image"
+                src="https://www.mapsofworld.com/style_2019/images/world-map.png?v:1"
+                alt="World Map">
+        </a>
+
+        <a class="link" href="driver comparison.html">
+            <div class="link-info">
+                <h2>Driver comparison</h2>
+                <p>Here is where you can compare the drivers of your choice at the session of your choice.</p>
+            </div>
+            <img class="image"
+                src="https://media.nbcmiami.com/2023/11/231115-f1-drivers-getty.jpg?quality=85&strip=all&fit=4895%2C2753"
+                alt="Image Of All The Drivers In F1">
+        </a>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('http://ergast.com/api/f1/current/driverStandings.json')
+                .then(response => response.json())
+                .then(data => {
+                    const standings = data.MRData.StandingsTable.StandingsLists[0].DriverStandings;
+                    const standingsBody = document.getElementById('standingsBody');
+
+                    standings.forEach(driver => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${driver.position}</td>
+                            <td>${driver.Driver.givenName} ${driver.Driver.familyName}</td>
+                            <td class="${driver.Constructors[0].name.toLowerCase().replace(/\s+/g, '-')}"}">${driver.Constructors[0].name}</td>
+                            <td>${driver.points}</td>
+                        `;
+                        standingsBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        });
+    </script>
+</body>
+
+</html>

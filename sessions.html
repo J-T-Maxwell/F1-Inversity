@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Sessions</title>
+    <link rel="stylesheet" href="global style.css">
+    <style>
+        .timeline {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .timeline a {
+            color: #00d2be;
+            text-decoration: none;
+            padding: 4px;
+        }
+
+        .timeline a:hover {
+            color: #c4c9c8;
+        }
+
+        .highlight {
+            background-color: #00fffb4d !important;
+            /* Highlight color */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="index.html">Home</a>
+        <a href="Car data.html">Car Data</a>
+        <a href="Drivers.html">Drivers</a>
+        <a href="Intervals.html">Intervals</a>
+        <a href="Laps.html">Laps</a>
+        <a href="sessions.html">Sessions</a>
+        <a href="driver comparison.html">Compare Drivers</a>
+        <a href="#" class="back-to-top">To Top Of Page</a>
+    </div>
+    <a href="index.html" class="back-button">&#8592;</a>
+    <h1>F1 Sessions</h1>
+
+    <p>
+        Below is the country names throughout the season that the drivers have visited. You can click on them to take
+        you to that session in the table.
+    </p>
+
+    <div class="timeline" id="timeline">
+        <!-- Timeline will be dynamically added here -->
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Location</th>
+                <th>Country</th>
+                <th>Circuit</th>
+                <th>Session Type</th>
+                <th>Session Name</th>
+                <th>Date Start</th>
+                <th>Date End</th>
+                <th>GMT Offset</th>
+            </tr>
+        </thead>
+        <tbody id="sessionTableBody">
+            <!-- Table rows will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <script>
+        fetch('https://api.openf1.org/v1/sessions')
+            .then(response => response.json())
+            .then(jsonContent => {
+                const sessionTableBody = document.getElementById('sessionTableBody');
+                const timeline = document.getElementById('timeline');
+
+                const countries = new Set();
+
+                jsonContent.forEach(session => {
+                    countries.add(session.country_name);
+                    const row = document.createElement('tr');
+                    row.id = session.country_name.replace(/ /g, '-');
+                    row.innerHTML = `
+                        <td>${session.location}</td>
+                        <td>${session.country_name}</td>
+                        <td>${session.circuit_short_name}</td>
+                        <td>${session.session_type}</td>
+                        <td>${session.session_name}</td>
+                        <td>${new Date(session.date_start).toLocaleString()}</td>
+                        <td>${new Date(session.date_end).toLocaleString()}</td>
+                        <td>${session.gmt_offset}</td>
+                    `;
+                    sessionTableBody.appendChild(row);
+                });
+
+                countries.forEach(country => {
+                    const link = document.createElement('a');
+                    link.textContent = country;
+                    link.href = `#${country.replace(/ /g, '-')}`;
+                    timeline.appendChild(link);
+
+                    // Add event listener to scroll to the corresponding section in the table
+                    link.addEventListener('click', function (event) {
+                        event.preventDefault(); // Prevent default behavior of anchor tag
+
+                        const navbarHeight = document.querySelector('.navbar').offsetHeight; // Get height of navigation bar
+                        const sections = document.querySelectorAll('tbody > tr');
+
+                        sections.forEach(section => {
+                            section.classList.remove('highlight');
+                        });
+
+                        const sectionId = this.getAttribute('href').substring(1);
+                        const section = document.getElementById(sectionId);
+                        section.classList.add('highlight');
+                        console.log(section);
+
+                        // Scroll to the corresponding section in the table, considering the navbar height
+                        const scrollToY = section.offsetTop - navbarHeight;
+                        window.scrollTo({
+                            top: scrollToY,
+                            behavior: 'smooth'
+                        });
+                    });
+
+                });
+            })
+            .catch(error => console.error('Error fetching sessions:', error));
+    </script>
+
+</body>
+
+</html>

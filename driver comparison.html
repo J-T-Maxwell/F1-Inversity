@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F1 Lap Time Comparison</title>
+
+  <link rel="stylesheet" href="global style.css">
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <div class="navbar">
+    <a href="index.html">Home</a>
+    <a href="Car data.html">Car Data</a>
+    <a href="Drivers.html">Drivers</a>
+    <a href="Intervals.html">Intervals</a>
+    <a href="Laps.html">Laps</a>
+    <a href="sessions.html">Sessions</a>
+    <a href="driver comparison.html">Compare Drivers</a>
+    <a href="#" class="back-to-top">To Top Of Page</a>
+</div>
+<a href="index.html" class="back-button">&#8592;</a>
+  <h1>F1 Lap Time Comparison</h1>
+  <p>
+    You can select a session and then select the two drivers that you want to compare. Then there times and time difference will be displayed.
+  </p>
+  <div class="container">
+    <div>
+      <label for="session">Select Session:</label>
+      <select id="session">
+        <!-- Options will be populated dynamically using JavaScript -->
+      </select>
+    </div>
+    <div>
+      <label for="driver1">Select Driver 1:</label>
+      <select id="driver1">
+        <!-- Options will be populated dynamically using JavaScript -->
+      </select>
+    </div>
+    <div>
+      <label for="driver2">Select Driver 2:</label>
+      <select id="driver2">
+        <!-- Options will be populated dynamically using JavaScript -->
+      </select>
+    </div>
+    <button id="compareBtn">Compare</button>
+  </div>
+  <div id="tableContainer">
+    <!-- Table will be dynamically populated using JavaScript -->
+  </div>
+  <script src="driver comparison.js"></script>
+</body>
+</html>

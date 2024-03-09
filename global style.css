@@ -1,0 +1,250 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: black;
+    /* Lock the background image */
+    height: 100vh;
+    /* Ensure full viewport height */
+    color: #00d2be;
+    text-align: center;
+}
+
+.back-button {
+    position: fixed; /* Fixed position to keep it at the top-left corner */
+    top: -20px;
+    left: 20px;
+    font-size: 50px; /* Adjust the size as needed */
+    text-decoration: none; /* Remove default link underline */
+    color: #00d2be; /* Button color */
+    padding: 10px; /* Add padding for better clickability */
+    transition: transform 0.3s ease; /* Add transition effect */
+    z-index: 9999;
+}
+
+.back-button:hover {
+    transform: scale(1.1); /* Scale up on hover */
+}
+
+#loading {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    color: #00d2be;
+    font-size: 24px;
+    text-align: center;
+    padding-top: 50%;
+}
+
+#loading p {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+h1 {
+    font-size: 50px;
+    margin-top: 50px;
+    color: #00d2be;
+    /* Text color */
+    text-align: center;
+}
+
+p {
+    font-size: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #333; /* Container background color */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .container > div {
+    margin-bottom: 15px;
+  }
+  
+  label {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+
+  select, button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    background-color: #555; /* Dropdown and button background color */
+    color: #fff; /* Dropdown and button text color */
+    cursor: pointer;
+  }
+  
+  select {
+    appearance: none; /* Remove default select arrow */
+  }
+  
+  button {
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #777; /* Darken button color on hover */
+  }
+
+ /* CSS for Navigation Bar */
+ .navbar {
+    background-color: #333;
+    overflow: hidden;
+    display: flex;
+    justify-content: center; /* Center the items horizontally */
+    position: fixed; /* Fix the position */
+    width: 100%; /* Full width */
+    top: 0; /* Stick to the top */
+    z-index: 9999;
+}
+
+.navbar a {
+    display: block;
+    color: #fff;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.back-to-top {
+    display: block;
+    position: fixed;
+    right: 20px;
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.back-to-top:hover {
+    background-color: #555;
+}
+
+#tableContainer {
+    max-width: 800px;
+    margin: 20px auto;
+    overflow-x: auto; /* Enable horizontal scrolling for small screens */
+  }
+  
+  table {
+    color: #fff;
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 10px;
+    border: 1px solid #555;
+    text-align: center;
+  }
+  
+  th {
+    background-color: #444; /* Header background color */
+    color: #fff; /* Header text color */
+    text-align: center;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #222; /* Even row background color */
+  }
+  
+  tr:hover {
+    background-color: #333; /* Darken row color on hover */
+  }
+  
+.link-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 67%;
+}
+
+.link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px;
+    padding: 10px 20px;
+    font-size: 20px;
+    text-decoration: none;
+    color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    /* White shadow */
+    border: 2px solid #fff;
+    /* White border */
+}
+
+.link:hover {
+    cursor: pointer;
+    transform: scale(1.02);
+}
+
+.link-info {
+    text-align: left;
+}
+
+.mercedes {
+    color: #00d2be;
+    /* Mercedes team color */
+}
+
+.red-bull {
+    color: #1e41ff;
+    /* Red Bull team color */
+}
+
+.ferrari {
+    color: #dc0000;
+}
+
+.mclaren {
+    color: #ff8700;
+}
+
+.alpine-f1-team {
+    color: #ff00e1;
+}
+
+.aston-martin {
+    color: #006f62;
+}
+
+.sauber {
+    color: #1aff00;
+}
+
+.haas-f1-team {
+    color: #787878;
+}
+
+.williams {
+    color: #0082fa;
+}
+
+.rb-f1-team {
+    color: #0033cc;
+}
+

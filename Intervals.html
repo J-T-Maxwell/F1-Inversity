@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="global style.css">
+    <title>Interval Board</title>
+    <style>
+        body {
+            background-image: url('https://cdn-7.motorsport.com/images/amp/YEQgnG5Y/s6/lewis-hamilton-mercedes-f1-w14.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            text-align: center;
+            /* Center align the title */
+            margin: 0;
+            /* Remove default margin */
+            overflow: hidden;
+            /* Hide any overflow content */
+        }
+
+        table {
+            margin: auto;
+            width: 25%;
+            max-height: calc(100vh - 200px);
+            /* Adjust as needed */
+            overflow-y: auto;
+            /* Enable vertical scrolling if needed */
+        }
+
+
+        td {
+            padding: 4px;
+        }
+
+        h1 {
+            margin-top: 50px;
+            margin-bottom: 10px;
+            border: 2px solid #00d2be;
+            /* Border style */
+            border-radius: 10px;
+            padding: 10px;
+            /* Padding inside the box */
+            display: inline-block;
+            /* Display as inline block to fit the content */
+            background-color: black;
+            /* Background color for the h1 */
+
+            display: inline-block;
+            /* Display as inline block to fit the content */
+        }
+
+        tr:hover {
+            background-color: #00fffb4d;
+            /* Change color on hover */
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="index.html">Home</a>
+        <a href="Car data.html">Car Data</a>
+        <a href="Drivers.html">Drivers</a>
+        <a href="Intervals.html">Intervals</a>
+        <a href="Laps.html">Laps</a>
+        <a href="sessions.html">Sessions</a>
+        <a href="driver comparison.html">Compare Drivers</a>
+        <a href="#" class="back-to-top">To Top Of Page</a>
+    </div>
+    <a href="index.html" class="back-button">&#8592;</a>
+    <h1>Interval Board</h1>
+    <div id="loading" style="display: none;">
+        <p>Loading Data, This May Take A Few Moments...</p>
+    </div>
+    <table>
+        <tbody id="intervalBoard">
+            <!-- Table rows will be dynamically added here -->
+        </tbody>
+    </table>
+    <script>
+        // Function to fetch data and update the interval board
+        async function fetchDataAndUpdateIntervalBoard() {
+            // Check if cached data exists and is not expired
+            const cachedData = localStorage.getItem('intervalBoardData');
+            if (cachedData) {
+                const parsedData = JSON.parse(cachedData);
+                if (parsedData.expirationTime > Date.now()) {
+                    // Hide loading screen
+                    document.getElementById('loading').style.display = 'none';
+                    displayIntervalBoard(parsedData.data);
+                    return;
+                }
+            }
+
+            // If data is not cached or expired, fetch fresh data
+            const session = 9197;
+
+            // Fetch drivers data for the latest session
+            const driversResponse = await fetch(`https://api.openf1.org/v1/drivers?session_key=${session}`);
+            const drivers = await driversResponse.json();
+
+            // Fetch positions data for each driver
+            const positionsPromises = drivers.map(async (driver) => {
+                console.log(driver.driver_number);
+                const positionResponse = await fetch(`https://api.openf1.org/v1/position?session_key=${session}&driver_number=${driver.driver_number}`);
+                const positions = await positionResponse.json();
+                // Reverse the positions array to get the last position
+                const position = positions.reverse().find(p => p.driver_number === driver.driver_number);
+                console.log(position);
+                driver.position = position ? position.position : Infinity;
+                return driver;
+            });
+
+            const driversWithPositions = await Promise.all(positionsPromises);
+
+            // Sort drivers based on their position
+            driversWithPositions.sort((a, b) => a.position - b.position);
+
+            // Fetch intervals data for the latest session
+            const intervalsResponse = await fetch(`https://api.openf1.org/v1/intervals?session_key=${session}`);
+            const intervals = await intervalsResponse.json();
+
+            // Calculate gap to leader
+            let cumulativeInterval = 0;
+            driversWithPositions.forEach(driver => {
+                const driverIntervals = intervals.filter(interval => interval.driver_number === driver.driver_number);
+                if (driverIntervals.length > 0) {
+                    driver.interval = driverIntervals.reduce((latest, current) => latest.date > current.date ? latest : current).interval;
+                } else {
+                    driver.interval = Infinity; // If no interval data found
+                }
+                cumulativeInterval += driver.interval;
+                driver.cumulativeInterval = cumulativeInterval;
+            });
+
+            // Update the interval board with the sorted data and calculated gap to leader
+            displayIntervalBoard(driversWithPositions);
+
+            // Cache the fetched data
+            const dataToCache = {
+                data: driversWithPositions,
+                expirationTime: Date.now() + 200000 // Cache expiration time (20 seconds)
+            };
+            localStorage.setItem('intervalBoardData', JSON.stringify(dataToCache));
+
+            // Hide loading screen
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // Function to display the interval board with the latest data
+        function displayIntervalBoard(data) {
+            const intervalBoard = document.getElementById('intervalBoard');
+            intervalBoard.innerHTML = ''; // Clear previous content
+
+            // Create table headers
+            const headers = ['Position', 'Driver', 'Team', 'Interval', 'Gap To Leader'];
+            const headerRow = document.createElement('tr');
+            headers.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+            intervalBoard.appendChild(headerRow);
+
+            // Create table rows with data
+            data.forEach((driver, index) => {
+                const row = document.createElement('tr');
+                const position = driver.position === Infinity ? 'DNF' : driver.position;
+                const rowData = [position, driver.name_acronym, '', driver.interval === null ? 'Leader' : driver.interval, driver.cumulativeInterval === 0 ? 'Leader' : driver.cumulativeInterval.toFixed(3)];
+                rowData.forEach((value, columnIndex) => {
+                    const td = document.createElement('td');
+                    td.textContent = value;
+                    if (columnIndex === 2) {
+                        td.style.backgroundColor = '#' + driver.team_colour;
+                    } else {
+                        td.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+                    }
+                    row.appendChild(td);
+                });
+                intervalBoard.appendChild(row);
+            });
+
+        }
+        // Show loading screen if fetching fresh data
+        document.getElementById('loading').style.display = 'block';
+        // Fetch data and update the interval board initially
+        fetchDataAndUpdateIntervalBoard();
+
+        // Set interval to fetch and update data every 10 seconds
+        setInterval(fetchDataAndUpdateIntervalBoard, 10000);
+    </script>
+</body>
+
+</html>
