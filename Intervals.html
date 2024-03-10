@@ -142,7 +142,7 @@
             // Cache the fetched data
             const dataToCache = {
                 data: driversWithPositions,
-                expirationTime: Date.now() + 200000 // Cache expiration time (20 seconds)
+                expirationTime: Date.now() + 20000 // Cache expiration time (20 seconds)
             };
             localStorage.setItem('intervalBoardData', JSON.stringify(dataToCache));
 
