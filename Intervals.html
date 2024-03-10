@@ -110,7 +110,6 @@
                 const positions = await positionResponse.json();
                 // Reverse the positions array to get the last position
                 const position = positions.reverse().find(p => p.driver_number === driver.driver_number);
-                console.log(position);
                 driver.position = position ? position.position : Infinity;
                 return driver;
             });

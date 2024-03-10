@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(sessions => {
             sessions.forEach(session => {
                 const option = document.createElement('option');
-                console.log(session);
                 option.text = session.location + ' - ' + session.session_name;
                 option.value = session.session_key;
                 sessionDropdown.appendChild(option);
